@@ -140,42 +140,60 @@ const About = () => {
       </section>
 
       {/* 🔥 TEAM */}
-      <section className="py-32 bg-[#0f172a]">
-        <div className="max-w-7xl mx-auto px-6 text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4 text-sky-400">
-            Leadership Team
-          </h2>
-          <p className="text-slate-400 text-lg">
-            Experts driving next-generation transport solutions.
-          </p>
+     {/* 🔥 HOW IT WORKS */}
+<section className="py-32 bg-[#0f172a]">
+  <div className="max-w-7xl mx-auto px-6 text-center mb-16">
+    <h2 className="text-4xl font-bold mb-4 text-sky-400">
+      How GoSwift Works
+    </h2>
+    <p className="text-slate-400 text-lg">
+      A simple and powerful system that connects drivers, passengers and admins in real time.
+    </p>
+  </div>
+
+  <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-12">
+
+    {[
+      {
+        title: "Driver GPS Update",
+        desc: "Drivers share their live location securely through the driver panel.",
+        icon: <FaBus />
+      },
+      {
+        title: "Real-Time Processing",
+        desc: "The backend processes location data and updates bus routes instantly.",
+        icon: <FaRoute />
+      },
+      {
+        title: "Passenger Tracking",
+        desc: "Passengers can track buses live and view estimated arrival times.",
+        icon: <FaUsers />
+      }
+    ].map((item, index) => (
+      <motion.div
+        key={index}
+        whileHover={{ y: -10 }}
+        initial={{ opacity: 0, y: 80 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.2 }}
+        className="bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-3xl text-center shadow-lg"
+      >
+        <div className="text-4xl text-sky-400 mb-6">
+          {item.icon}
         </div>
 
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-12">
+        <h3 className="text-xl font-semibold mb-3">
+          {item.title}
+        </h3>
 
-          {["CEO", "CTO", "Operations Head"].map((role, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ y: -10 }}
-              className="bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-3xl text-center shadow-lg"
-            >
-              <img
-                src={`https://randomuser.me/api/portraits/men/${index + 30}.jpg`}
-                alt="team"
-                className="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-sky-500"
-              />
-              <h3 className="text-xl font-semibold mb-2">John Doe</h3>
-              <p className="text-slate-400 mb-4">{role}</p>
+        <p className="text-slate-400">
+          {item.desc}
+        </p>
+      </motion.div>
+    ))}
 
-              <div className="flex justify-center gap-4 text-sky-400 text-lg">
-                <FaLinkedin />
-                <FaTwitter />
-              </div>
-            </motion.div>
-          ))}
-
-        </div>
-      </section>
-
+  </div>
+</section>
       {/* 🔥 FINAL CTA */}
       <section className="py-32 bg-gradient-to-br from-purple-800 to-sky-700 text-center">
         <h2 className="text-4xl font-bold mb-6">
