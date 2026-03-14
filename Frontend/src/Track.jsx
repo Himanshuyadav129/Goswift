@@ -11,16 +11,13 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import "leaflet/dist/leaflet.css";
 
-// socket connection
-const socket = io("http://localhost:5000");
-
 // 🚌 Bus Icon
 const busIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/61/61231.png",
   iconSize: [32, 32],
 });
 
-// Route line (visual only)
+// Route line
 const route = [
   [28.6139, 77.2090],
   [28.6170, 77.2130],
@@ -34,10 +31,12 @@ const route = [
 
 const Track = () => {
 
-  // buses state
   const [busPositions, setBusPositions] = useState([]);
 
-  // fetch buses from backend
+  // socket create
+  const socket = io("http://localhost:5000");
+
+  // fetch buses
   useEffect(() => {
 
     const fetchBuses = async () => {
@@ -58,29 +57,33 @@ const Track = () => {
 
   }, []);
 
-  // socket live updates
+  // socket live update
   useEffect(() => {
 
     socket.on("busLocationUpdate", (data) => {
 
       setBusPositions(prev => {
 
-        const filtered = prev.filter(b => b._id !== data.busId);
+        const updated = prev.map(bus =>
 
-        return [
-          ...filtered,
-          {
-            _id: data.busId,
-            latitude: data.latitude,
-            longitude: data.longitude
-          }
-        ];
+          bus._id === data.busId
+            ? {
+                ...bus,
+                latitude: data.latitude,
+                longitude: data.longitude
+              }
+            : bus
+        );
+
+        return updated;
 
       });
 
     });
 
-  }, []);
+    return () => socket.disconnect();
+
+  }, [socket]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white p-8">
@@ -128,8 +131,10 @@ const Track = () => {
               >
                 <Popup>
                   <div>
-                    <strong>Bus {bus.busNumber || bus._id}</strong>
-                    <br />
+                    <strong>Bus {bus.busNumber}</strong>
+                    <br/>
+                    Driver: {bus.driverName}
+                    <br/>
                     Status: Running
                   </div>
                 </Popup>
@@ -146,7 +151,7 @@ const Track = () => {
       {/* Fleet Panel */}
       <div className="max-w-7xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
 
-        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 hover:scale-105 transition">
+        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
           <h3 className="text-sky-400 font-semibold text-lg">
             Active Fleet
           </h3>
@@ -158,7 +163,7 @@ const Track = () => {
           </p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 hover:scale-105 transition">
+        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
           <h3 className="text-sky-400 font-semibold text-lg">
             Route Coverage
           </h3>
@@ -170,7 +175,7 @@ const Track = () => {
           </p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 hover:scale-105 transition">
+        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
           <h3 className="text-sky-400 font-semibold text-lg">
             System Status
           </h3>

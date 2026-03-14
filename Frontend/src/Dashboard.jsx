@@ -228,6 +228,68 @@ const Dashboard = () => {
 
         </div>
       </section>
+        
+{/* 🚍 Bus Showcase Section */}
+<section className="bg-slate-100 py-20">
+
+  <div className="max-w-7xl mx-auto px-6">
+
+    <h2 className="text-3xl md:text-4xl font-bold text-center text-slate-800 mb-12">
+      Explore Our Smart Transport Network
+    </h2>
+
+    <div className="grid md:grid-cols-3 gap-8">
+
+      {/* Card 1 */}
+      <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition">
+        <img
+          src="/bus1.jpg"
+          alt="City Bus"
+          className="h-56 w-full object-cover"
+        />
+        <div className="p-6">
+          <h3 className="font-semibold text-xl mb-2">City Transport</h3>
+          <p className="text-slate-600 text-sm">
+            Reliable buses covering all major city routes with real-time GPS tracking.
+          </p>
+        </div>
+      </div>
+
+      {/* Card 2 */}
+      <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition">
+        <img
+          src="/bus2.jpg"
+          alt="Intercity Bus"
+          className="h-56 w-full object-cover"
+        />
+        <div className="p-6">
+          <h3 className="font-semibold text-xl mb-2">Intercity Routes</h3>
+          <p className="text-slate-600 text-sm">
+            Efficient transport connecting nearby cities with smart route monitoring.
+          </p>
+        </div>
+      </div>
+
+      {/* Card 3 */}
+      <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition">
+        <img
+          src="/bus3.jpg"
+          alt="Smart Bus"
+          className="h-56 w-full object-cover"
+        />
+        <div className="p-6">
+          <h3 className="font-semibold text-xl mb-2">Smart Tracking</h3>
+          <p className="text-slate-600 text-sm">
+            Track buses live and monitor routes using our advanced system.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
       {/* ⭐ Features */}
       <section className="bg-white py-16">
