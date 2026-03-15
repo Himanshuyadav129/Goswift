@@ -11,6 +11,12 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import "leaflet/dist/leaflet.css";
 
+// backend url
+const API_URL = "https://goswift-sudx.onrender.com";
+
+// socket create
+const socket = io(API_URL);
+
 // 🚌 Bus Icon
 const busIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/61/61231.png",
@@ -33,9 +39,6 @@ const Track = () => {
 
   const [busPositions, setBusPositions] = useState([]);
 
-  // socket create
-  const socket = io("http://localhost:5000");
-
   // fetch buses
   useEffect(() => {
 
@@ -43,7 +46,7 @@ const Track = () => {
 
       try {
 
-        const res = await axios.get("http://localhost:5000/api/bus/all");
+        const res = await axios.get(`${API_URL}/api/bus/all`);
 
         setBusPositions(res.data);
 
@@ -81,9 +84,9 @@ const Track = () => {
 
     });
 
-    return () => socket.disconnect();
+    return () => socket.off("busLocationUpdate");
 
-  }, [socket]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white p-8">
