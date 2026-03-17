@@ -12,9 +12,24 @@ const Login = () => {
 
   const handleLogin = async () => {
 
+    // ✅ basic validation
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
+
     try {
 
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
+      const API_URL = import.meta.env.VITE_API_URL;
+
+      // ✅ check env loaded or not
+      if (!API_URL) {
+        alert("API URL not configured");
+        console.error("VITE_API_URL missing");
+        return;
+      }
+
+      const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -43,7 +58,8 @@ const Login = () => {
 
     } catch (error) {
 
-      alert("Server error");
+      console.error("Login error:", error);
+      alert("Server error or backend not reachable");
 
     }
 
