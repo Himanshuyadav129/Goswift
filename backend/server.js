@@ -15,9 +15,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/bus", busRoutes);
-app.use("/api/driver", driverRoutes);
+app.use("/api", authRoutes);
+app.use("/api", busRoutes);
+app.use("/api", driverRoutes);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
