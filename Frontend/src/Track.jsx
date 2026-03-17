@@ -10,11 +10,17 @@ import L from "leaflet";
 import axios from "axios";
 import { io } from "socket.io-client";
 import "leaflet/dist/leaflet.css";
-
+const API_URL = import.meta.env.VITE_API_URL;
+const socket = io(API_URL);
 // backend url
 const API_URL = "https://goswift-sudx.onrender.com";
 
 // socket create
+const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  console.error("API URL missing");
+}
 const socket = io(API_URL);
 
 // 🚌 Bus Icon
@@ -46,7 +52,7 @@ const Track = () => {
 
       try {
 
-        const res = await axios.get(`${API_URL}/api/bus/all`);
+        const res = await axios.get(`${API_URL}/bus/all`);
 
         setBusPositions(res.data);
 
