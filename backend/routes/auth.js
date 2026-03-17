@@ -1,21 +1,37 @@
 import express from "express";
-const router = express.Router();
+import cors from "cors";
 
-router.post("/login", (req, res) => {
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+// ✅ IMPORTANT FIX
+app.post("/api/register", (req, res) => {
+  const { name, email, password } = req.body;
+
+  // dummy response (check ke liye)
+  res.json({
+    message: "Register success",
+    user: { name, email }
+  });
+});
+
+app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
 
+  // dummy response
   res.json({
     message: "Login success",
     token: "123456"
   });
 });
 
-router.post("/register", (req, res) => {
-  const { name, email, password } = req.body;
-
-  res.json({
-    message: "Register success"
-  });
+// test route
+app.get("/", (req, res) => {
+  res.send("API is running...");
 });
 
-export default router;
+app.listen(5000, () => {
+  console.log("Server running");
+});
