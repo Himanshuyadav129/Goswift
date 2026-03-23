@@ -7,8 +7,8 @@ const { Server } = require("socket.io");
 
 const authRoutes = require("./routes/auth");
 const busRoutes = require("./routes/bus");
-const driverRoutes = require("./routes/driver");
-const Bus = require("./models/Bus"); // NEW
+
+const Bus = require("./models/Bus");
 
 const app = express();
 
@@ -17,69 +17,38 @@ app.use(express.json());
 
 app.use("/api", authRoutes);
 app.use("/api", busRoutes);
-app.use("/api", driverRoutes);
 
-// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-.then(()=>{
-    console.log("MongoDB Connected");
-})
-.catch(err=>{
-    console.log("MongoDB Error:", err);
-});
+.then(()=>console.log("MongoDB Connected"))
+.catch(err=>console.log(err));
 
-app.get("/", (req,res)=>{
-    res.send("GoSwift Backend Running");
-});
-
-// ⚡ Socket.io Setup
 const server = http.createServer(app);
 
 const io = new Server(server,{
-    cors:{
-        origin:"*"
-    }
+  cors:{ origin:"*" }
 });
 
 io.on("connection",(socket)=>{
-    console.log("User Connected:", socket.id);
 
-    // Driver sends location
-    socket.on("busLocation", async(data)=>{
+  socket.on("busLocation", async(data)=>{
 
-        console.log("Bus Location:",data);
+    const { busId, latitude, longitude } = data;
 
-        try{
-
-            const { busId, latitude, longitude } = data;
-
-            // DB update
-            await Bus.findByIdAndUpdate(busId,{
-                latitude: latitude,
-                longitude: longitude
-            });
-
-            // send to all passengers
-            io.emit("busLocationUpdate",{
-                busId,
-                latitude,
-                longitude
-            });
-
-        }catch(err){
-            console.log("Location update error:",err);
-        }
-
+    await Bus.findByIdAndUpdate(busId,{
+      latitude,
+      longitude
     });
 
-    socket.on("disconnect",()=>{
-        console.log("User Disconnected");
+    io.emit("busLocationUpdate",{
+      busId,
+      latitude,
+      longitude
     });
+
+  });
 
 });
 
-const PORT = process.env.PORT || 5000;
-
-server.listen(PORT, ()=>{
-    console.log("Server running on port " + PORT);
+server.listen(5000, ()=>{
+  console.log("Server running on port 5000");
 });

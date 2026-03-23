@@ -1,19 +1,23 @@
-const express = require("express");
-const router = express.Router();
+const mongoose = require("mongoose");
 
-const {
-addBus,
-getAllBus,
-updateLocation,
-getNearestBus
-} = require("../controllers/busController");
+const busSchema = new mongoose.Schema({
+  busNumber: String,
+  source: String,
+  destination: String,
 
-router.post("/add", addBus);
+  driver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
 
-router.get("/all", getAllBus);
+  latitude: {
+    type: Number,
+    default: 0
+  },
+  longitude: {
+    type: Number,
+    default: 0
+  }
+});
 
-router.post("/update-location", updateLocation);
-
-router.get("/nearest", getNearestBus);
-
-module.exports = router;
+module.exports = mongoose.model("Bus", busSchema);
