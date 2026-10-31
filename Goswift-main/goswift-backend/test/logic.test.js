@@ -5,6 +5,7 @@ const { matchesJourney } = require('../src/utils/journey');
 const { normalizeStops } = require('../src/utils/stops');
 const { toCsv, cell } = require('../src/utils/csv');
 const { buildReport, startOfDay } = require('../src/utils/report');
+const { activeSince, isTripStale } = require('../src/utils/trips');
 
 let n = 0;
 const test = (name, fn) => {
@@ -137,6 +138,21 @@ test('report: per-day series is zero filled and totals add up', () => {
 test('startOfDay: local midnight in IST', () => {
   // 2026-10-30 10:00 UTC = 15:30 IST -> IST midnight = 2026-10-29 18:30 UTC
   assert.strictEqual(new Date(startOfDay(Date.parse('2026-10-30T10:00:00Z'), 330)).toISOString(), '2026-10-29T18:30:00.000Z');
+});
+
+test('stale trips: measured from the last ping of this trip, else the start', () => {
+  const start = '2026-10-30T10:00:00Z';
+  const now = Date.parse('2026-10-30T10:30:00Z');
+  const min = 60000;
+  // last ping 5 min ago -> fine
+  assert(!isTripStale({ lastSeen: '2026-10-30T10:25:00Z', startedAt: start, now, maxMs: 20 * min }));
+  // last ping 25 min ago -> stale
+  assert(isTripStale({ lastSeen: '2026-10-30T10:05:00Z', startedAt: start, now, maxMs: 20 * min }));
+  // a ping from a PREVIOUS trip (before start) is ignored: no ping yet, started 30 min ago -> stale
+  assert(isTripStale({ lastSeen: '2026-10-29T09:00:00Z', startedAt: start, now, maxMs: 20 * min }));
+  // just started, never pinged -> not stale
+  assert(!isTripStale({ lastSeen: null, startedAt: '2026-10-30T10:20:00Z', now, maxMs: 20 * min }));
+  assert.strictEqual(new Date(activeSince('2026-10-30T10:05:00Z', start)).toISOString(), '2026-10-30T10:05:00.000Z');
 });
 
 console.log(`\n${n} tests passed`);
