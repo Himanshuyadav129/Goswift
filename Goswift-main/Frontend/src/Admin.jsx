@@ -8,19 +8,25 @@ import {
   FaChartBar,
   FaTachometerAlt,
   FaSignOutAlt,
-  FaHome
+  FaHome,
+  FaBullhorn,
+  FaMapMarkedAlt
 } from "react-icons/fa";
 import { apiFetch, clearAuth, getUser } from "./api";
 import BusesTab from "./admin/BusesTab";
 import DriversTab from "./admin/DriversTab";
 import RoutesTab from "./admin/RoutesTab";
 import ReportsTab from "./admin/ReportsTab";
+import AnnouncementsTab from "./admin/AnnouncementsTab";
+import LiveMapTab from "./admin/LiveMapTab";
 
 const TABS = [
   { id: "overview", text: "Overview", icon: <FaTachometerAlt /> },
+  { id: "map", text: "Live Map", icon: <FaMapMarkedAlt /> },
   { id: "buses", text: "Buses", icon: <FaBus /> },
   { id: "routes", text: "Routes", icon: <FaRoute /> },
   { id: "drivers", text: "Drivers", icon: <FaUsers /> },
+  { id: "announce", text: "Announcements", icon: <FaBullhorn /> },
   { id: "reports", text: "Reports", icon: <FaChartBar /> }
 ];
 
@@ -110,7 +116,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white flex">
       {/* Sidebar */}
-      <aside className="w-56 shrink-0 bg-slate-900/80 backdrop-blur-xl border-r border-white/10 p-5 flex flex-col justify-between">
+      <aside className="w-56 shrink-0 overflow-y-auto bg-slate-900/80 backdrop-blur-xl border-r border-white/10 p-5 flex flex-col justify-between">
         <div>
           <h2 className="text-sky-400 text-xl font-extrabold mb-10 tracking-wide">🚍 GoSwift Admin</h2>
           <nav className="space-y-2">
@@ -155,9 +161,11 @@ const Admin = () => {
         </div>
 
         {tab === "overview" && <Overview navigate={navigate} />}
+        {tab === "map" && <LiveMapTab />}
         {tab === "buses" && <BusesTab />}
         {tab === "routes" && <RoutesTab />}
         {tab === "drivers" && <DriversTab />}
+        {tab === "announce" && <AnnouncementsTab />}
         {tab === "reports" && <ReportsTab />}
       </main>
     </div>

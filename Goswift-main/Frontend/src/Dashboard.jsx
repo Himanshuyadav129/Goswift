@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NotificationBell from "./NotificationBell";
+import AnnouncementBanner from "./AnnouncementBanner";
+import { clearAuth } from "./api";
 import {
   FaBus,
   FaHome,
@@ -44,8 +46,7 @@ const Dashboard = () => {
   }, [open]);
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    clearAuth();
     navigate("/login");
   };
 
@@ -199,6 +200,8 @@ const Dashboard = () => {
         )}
 
       </header>
+
+      <AnnouncementBanner className="max-w-7xl w-full mx-auto px-6 pt-4" />
 
       {/* 🔥 Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">

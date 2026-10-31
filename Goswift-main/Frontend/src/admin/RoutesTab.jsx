@@ -16,6 +16,10 @@ const RoutesTab = () => {
   const [editingId, setEditingId] = useState(null);
   const [name, setName] = useState("");
   const [stops, setStops] = useState([]);
+  const [baseFare, setBaseFare] = useState("");
+  const [farePerKm, setFarePerKm] = useState("");
+  const [schedule, setSchedule] = useState("");
+  const [speed, setSpeed] = useState("25");
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
 
@@ -35,6 +39,10 @@ const RoutesTab = () => {
     setEditingId(null);
     setName("");
     setStops([]);
+    setBaseFare("");
+    setFarePerKm("");
+    setSchedule("");
+    setSpeed("25");
   };
 
   const addStop = (lat, lng) =>
@@ -57,6 +65,10 @@ const RoutesTab = () => {
     try {
       const body = {
         name,
+        baseFare: baseFare === "" ? 0 : Number(baseFare),
+        farePerKm: farePerKm === "" ? 0 : Number(farePerKm),
+        schedule,
+        scheduleSpeedKmh: speed === "" ? 25 : Number(speed),
         stops: stops.map((s) => ({ name: s.name, lat: Number(s.lat), lng: Number(s.lng) }))
       };
       if (editingId) await apiFetch(`/api/routes/${editingId}`, { method: "PUT", body });
@@ -73,6 +85,10 @@ const RoutesTab = () => {
     setEditingId(r._id);
     setName(r.name);
     setStops(r.stops.map((s) => ({ ...s })));
+    setBaseFare(r.baseFare ? String(r.baseFare) : "");
+    setFarePerKm(r.farePerKm ? String(r.farePerKm) : "");
+    setSchedule((r.schedule || []).join(", "));
+    setSpeed(String(r.scheduleSpeedKmh || 25));
     setOk("");
     setError("");
   };
@@ -100,7 +116,10 @@ const RoutesTab = () => {
             <li key={r._id} className="flex items-center justify-between gap-2 bg-white/5 rounded-xl p-3">
               <div className="min-w-0">
                 <p className="font-medium truncate">{r.name}</p>
-                <p className="text-xs text-slate-400">{r.stops.length} stops</p>
+                <p className="text-xs text-slate-400">
+                  {r.stops.length} stops · {(r.schedule || []).length} departures
+                  {r.baseFare || r.farePerKm ? ` · fare ₹${r.baseFare || 0} min, ₹${r.farePerKm || 0}/km` : ""}
+                </p>
               </div>
               <div className="flex gap-2 shrink-0">
                 <Button variant="ghost" onClick={() => edit(r)}>Edit</Button>
@@ -115,6 +134,21 @@ const RoutesTab = () => {
       <Card title={editingId ? "Edit route" : "New route"} className="xl:col-span-2">
         <Field label="Route name">
           <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Delhi - Noida Express" />
+        </Field>
+
+        <div className="grid sm:grid-cols-3 gap-3">
+          <Field label="Minimum fare (₹)">
+            <input className={inputCls} type="number" min="0" step="any" value={baseFare} onChange={(e) => setBaseFare(e.target.value)} placeholder="10" />
+          </Field>
+          <Field label="Fare per km (₹)">
+            <input className={inputCls} type="number" min="0" step="any" value={farePerKm} onChange={(e) => setFarePerKm(e.target.value)} placeholder="1.5" />
+          </Field>
+          <Field label="Timetable speed (km/h)">
+            <input className={inputCls} type="number" min="5" max="100" value={speed} onChange={(e) => setSpeed(e.target.value)} />
+          </Field>
+        </div>
+        <Field label="Departure times from the first stop (24 hour, comma separated)">
+          <input className={inputCls} value={schedule} onChange={(e) => setSchedule(e.target.value)} placeholder="06:30, 08:00, 09:30, 17:00" />
         </Field>
 
         <p className="text-sm text-slate-400 mb-2">Click on the map to add stops in order. Rename or reorder them below.</p>

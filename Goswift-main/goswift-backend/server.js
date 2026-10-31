@@ -28,6 +28,8 @@ const limiter = (windowMs, max, message) =>
   rateLimit({ windowMs, max, standardHeaders: true, legacyHeaders: false, message: { message } });
 app.use('/api/login', limiter(15 * 60 * 1000, 20, 'Too many login attempts, try again later'));
 app.use('/api/register', limiter(60 * 60 * 1000, 20, 'Too many sign-ups, try again later'));
+app.use('/api/forgot-password', limiter(60 * 60 * 1000, 5, 'Too many reset requests, try again in an hour'));
+app.use('/api/reset-password', limiter(60 * 60 * 1000, 20, 'Too many attempts, try again later'));
 app.use('/register', limiter(60 * 60 * 1000, 20, 'Too many sign-ups, try again later'));
 
 const authRoutes = require('./src/routes/auth');
@@ -42,6 +44,8 @@ app.use('/api/routes', require('./src/routes/routes'));
 app.use('/api/driver', require('./src/routes/driver'));
 app.use('/api/notifications', require('./src/routes/notifications'));
 app.use('/api/subscriptions', require('./src/routes/subscriptions'));
+app.use('/api/announcements', require('./src/routes/announcements'));
+app.use('/api/push', require('./src/routes/push'));
 app.use('/api/admin', require('./src/routes/admin'));
 
 app.get('/', (_req, res) => res.json({ message: 'GoSwift backend is running' }));
@@ -62,7 +66,12 @@ registerSocket(io);
 
 const PORT = process.env.PORT || 5000;
 connectDB()
-  .then(() => server.listen(PORT, () => console.log(`GoSwift backend listening on :${PORT}`)))
+  .then(() =>
+    server.listen(PORT, () => {
+      console.log(`GoSwift backend listening on :${PORT}`);
+      require('./src/services/cleanup').startCleanup(io);
+    })
+  )
   .catch((err) => {
     console.error('Startup failed:', err.message);
     process.exit(1);

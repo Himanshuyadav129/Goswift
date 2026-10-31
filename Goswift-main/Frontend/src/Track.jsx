@@ -5,6 +5,8 @@ import "leaflet/dist/leaflet.css";
 import { io } from "socket.io-client";
 import { API_URL, apiFetch, getToken } from "./api";
 import NotificationBell from "./NotificationBell";
+import AnnouncementBanner from "./AnnouncementBanner";
+import Timetable from "./Timetable";
 
 const STATUS_COLOR = { running: "text-green-400", maintenance: "text-yellow-400", idle: "text-slate-400" };
 const STOP_LABEL = { passed: "Passed", arrived: "At stop", next: "Next stop", upcoming: "Upcoming", unknown: "-" };
@@ -152,6 +154,8 @@ const UserTracking = () => {
         </div>
       </div>
 
+      <AnnouncementBanner busId={selectedId} routeId={selected?.route?._id} className="mb-6" />
+
       <form onSubmit={searchBus} className="flex flex-wrap gap-3 mb-6">
         <input
           placeholder="From (e.g. Delhi, ITO)"
@@ -257,6 +261,8 @@ const UserTracking = () => {
               )}
             </div>
           )}
+
+          {selected?.route?._id && <Timetable routeId={selected.route._id} stops={(eta?.stops || []).map((s) => s.name)} />}
         </div>
 
         <div className="h-[28rem] lg:h-[40rem] rounded-2xl overflow-hidden border border-white/10 lg:sticky lg:top-6">

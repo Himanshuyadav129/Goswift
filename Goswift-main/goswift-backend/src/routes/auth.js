@@ -1,7 +1,9 @@
+const crypto = require('crypto');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { signToken, requireAuth } = require('../middleware/auth');
+const { sendEmail } = require('../services/email');
 
 const router = express.Router();
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
@@ -84,6 +86,59 @@ router.post('/login', async (req, res, next) => {
 });
 
 // GET /api/me
+const sha256 = (s) => crypto.createHash('sha256').update(s).digest('hex');
+const GENERIC = 'If an account with that email exists, a reset link has been sent.';
+
+// POST /api/forgot-password { email }  - always answers the same, so it can't be used to find accounts
+router.post('/forgot-password', async (req, res, next) => {
+  try {
+    const email = String(req.body.email || '').trim().toLowerCase();
+    if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Enter a valid email address' });
+
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = crypto.randomBytes(32).toString('hex');
+      user.resetTokenHash = sha256(token);
+      user.resetTokenExpires = new Date(Date.now() + 30 * 60000);
+      await user.save();
+
+      const base = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+      const link = `${base}/reset-password?token=${token}`;
+      const sent = await sendEmail(
+        user.email,
+        'GoSwift: reset your password',
+        `Hi ${user.name},\n\nOpen this link to choose a new password (valid for 30 minutes):\n${link}\n\nIf you did not ask for this, ignore this email.\n\n- GoSwift`
+      );
+      // Development helper: no SMTP set up -> print the link in the server console instead
+      if (!sent && process.env.NODE_ENV !== 'production') console.log(`[dev] Password reset link for ${user.email}: ${link}`);
+    }
+    res.json({ message: GENERIC });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/reset-password { token, password }
+router.post('/reset-password', async (req, res, next) => {
+  try {
+    const token = String(req.body.token || '');
+    const password = String(req.body.password || '');
+    if (!/^[a-f0-9]{64}$/.test(token)) return res.status(400).json({ message: 'This reset link is invalid or has expired' });
+    if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' });
+
+    const user = await User.findOne({ resetTokenHash: sha256(token), resetTokenExpires: { $gt: new Date() } }).select('+password');
+    if (!user) return res.status(400).json({ message: 'This reset link is invalid or has expired' });
+
+    user.password = await bcrypt.hash(password, 10);
+    user.resetTokenHash = undefined;
+    user.resetTokenExpires = undefined;
+    await user.save();
+    res.json({ message: 'Password changed. You can log in now.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get('/me', requireAuth, (req, res) => res.json({ user: req.user.toSafeJSON() }));
 
 module.exports = router;

@@ -2,6 +2,7 @@ const Subscription = require('../models/Subscription');
 const Notification = require('../models/Notification');
 const { etaToStops } = require('../utils/geo');
 const { sendEmail } = require('./email');
+const { sendPushToUsers } = require('./push');
 
 /**
  * Called after every GPS ping of a bus that is on a trip.
@@ -43,6 +44,7 @@ async function checkAlerts({ io, bus, trip, route, pos }) {
     await sub.save();
 
     io.to(`user:${sub.user._id}`).emit('notification', note);
+    sendPushToUsers([sub.user._id], { title, body: message, url: `/track?bus=${bus._id}`, tag: `bus-${bus._id}` });
     sendEmail(sub.user.email, `GoSwift: ${title}`, `Hi ${sub.user.name},\n\n${message}\n\n- GoSwift`);
   }
 }

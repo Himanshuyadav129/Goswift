@@ -10,7 +10,22 @@ export const getUser = () => {
   }
 };
 
+// On logout, stop push notifications on this device so the next person on it doesn't get them
+async function detachPush(token) {
+  if (!token || !("serviceWorker" in navigator)) return;
+  const reg = await navigator.serviceWorker.getRegistration();
+  const sub = reg && (await reg.pushManager.getSubscription());
+  if (!sub) return;
+  await fetch(`${API_URL}/api/push/unsubscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ endpoint: sub.endpoint })
+  });
+  await sub.unsubscribe();
+}
+
 export const clearAuth = () => {
+  detachPush(getToken()).catch(() => {});
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 };

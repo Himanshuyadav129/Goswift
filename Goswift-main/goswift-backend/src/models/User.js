@@ -17,7 +17,10 @@ const userSchema = new mongoose.Schema(
     // Drivers who sign up themselves start unapproved; an admin must approve them before they can drive.
     approved: { type: Boolean, default: true },
     // For drivers: the bus they drive
-    bus: { type: mongoose.Schema.Types.ObjectId, ref: 'Bus', default: null }
+    bus: { type: mongoose.Schema.Types.ObjectId, ref: 'Bus', default: null },
+    // Forgot password: only the SHA-256 hash of the emailed token is stored
+    resetTokenHash: { type: String, select: false },
+    resetTokenExpires: { type: Date, select: false }
   },
   { timestamps: true }
 );

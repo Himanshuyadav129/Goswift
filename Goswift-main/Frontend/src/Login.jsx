@@ -93,7 +93,7 @@ const Login = () => {
             />
           </div>
 
-          <div className="relative mb-4">
+          <div className="relative mb-2">
             <FaLock className="absolute left-4 top-4 text-slate-400" />
             <input
               type="password"
@@ -103,6 +103,12 @@ const Login = () => {
               className="w-full pl-12 p-3 rounded-xl bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500"
               onChange={(e) => setPassword(e.target.value)}
             />
+          </div>
+
+          <div className="mb-4 text-right">
+            <Link to="/forgot-password" className="text-sm text-sky-400 hover:underline">
+              Forgot password?
+            </Link>
           </div>
 
           {error && <p className="mb-4 text-sm text-red-400">{error}</p>}

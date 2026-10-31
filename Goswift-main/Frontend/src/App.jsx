@@ -7,6 +7,8 @@ import Login from "./Login";
 import Register from "./Register";
 import Track from "./Track";
 import Admin from "./Admin";
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
 import ProtectedRoute, { GuestRoute } from "./ProtectedRoute";
 
 const App = () => {
@@ -20,6 +22,9 @@ const App = () => {
 
         <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/signup" element={<GuestRoute><Register /></GuestRoute>} />
+
+        <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route
           path="/driver"

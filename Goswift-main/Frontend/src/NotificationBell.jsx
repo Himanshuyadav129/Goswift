@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FaBell } from "react-icons/fa";
 import { io } from "socket.io-client";
 import { API_URL, apiFetch, getToken } from "./api";
+import PushToggle from "./PushToggle";
 
 // Bell with unread badge + live pop-up when the server pushes a "notification" (bus approaching / arrived).
 // Renders nothing for logged-out visitors. `light` = for use on a white navbar.
@@ -81,6 +82,7 @@ const NotificationBell = ({ light = false }) => {
       {open && (
         <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-2xl bg-slate-900 text-slate-100 border border-white/10 shadow-2xl z-50">
           <p className="px-4 py-3 border-b border-white/10 font-semibold">Notifications</p>
+          <PushToggle />
           {data.items.length === 0 && <p className="px-4 py-6 text-slate-400 text-sm">No notifications yet.</p>}
           {data.items.map((n) => (
             <div key={n._id} className="px-4 py-3 border-b border-white/5 last:border-0">
