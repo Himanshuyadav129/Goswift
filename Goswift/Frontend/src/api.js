@@ -1,6 +1,9 @@
-export const API_URL =
+const RAW_API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? "https://goswift-deys.onrender.com" : "http://localhost:5000");
+
+// Remove any trailing "/" so we never call "...onrender.com//api/login"
+export const API_URL = RAW_API_URL.trim().replace(/\/+$/, "");
 
 export const getToken = () => localStorage.getItem("token");
 
