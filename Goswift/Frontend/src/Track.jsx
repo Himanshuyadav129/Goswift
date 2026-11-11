@@ -1,16 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { CircleMarker, MapContainer, Polyline, Popup, TileLayer, Tooltip } from "react-leaflet";
+import { CircleMarker, MapContainer, Polyline, TileLayer, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { io } from "socket.io-client";
 import { API_URL, apiFetch, getToken } from "./api";
 import NotificationBell from "./NotificationBell";
 import AnnouncementBanner from "./AnnouncementBanner";
 import Timetable from "./Timetable";
+import BusMarker from "./BusMarker";
 
 const STATUS_COLOR = { running: "text-green-400", maintenance: "text-yellow-400", idle: "text-slate-400" };
 const STOP_LABEL = { passed: "Passed", arrived: "At stop", next: "Next stop", upcoming: "Upcoming", unknown: "-" };
 const DELHI = [28.6139, 77.209];
+
+// Keeps the map centred on the selected bus while "Follow bus" is on
+const FollowBus = ({ pos, on }) => {
+  const map = useMap();
+  const lat = pos ? pos[0] : null;
+  const lng = pos ? pos[1] : null;
+  useEffect(() => {
+    if (on && lat != null) map.panTo([lat, lng], { animate: true, duration: 1 });
+  }, [lat, lng, on, map]);
+  return null;
+};
 
 const UserTracking = () => {
   const [source, setSource] = useState("");
@@ -23,6 +35,7 @@ const UserTracking = () => {
   const [eta, setEta] = useState(null);
   const [subs, setSubs] = useState([]);
   const [notice, setNotice] = useState("");
+  const [follow, setFollow] = useState(true);
   const lastEtaFetch = useRef(0);
   const selectedIdRef = useRef(null);
 
@@ -265,7 +278,10 @@ const UserTracking = () => {
           {selected?.route?._id && <Timetable routeId={selected.route._id} stops={(eta?.stops || []).map((s) => s.name)} />}
         </div>
 
-        <div className="h-[28rem] lg:h-[40rem] rounded-2xl overflow-hidden border border-white/10 lg:sticky lg:top-6">
+        <div className="relative h-[28rem] lg:h-[40rem] rounded-2xl overflow-hidden border border-white/10 lg:sticky lg:top-6">
+          <label className="absolute top-3 right-3 z-[1000] flex items-center gap-2 rounded-lg bg-slate-900/90 px-3 py-1.5 text-xs text-white shadow cursor-pointer">
+            <input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} /> Follow bus
+          </label>
           <MapContainer key={selectedId || "all"} center={center} zoom={12} style={{ height: "100%", width: "100%" }}>
             <TileLayer
               attribution="&copy; OpenStreetMap contributors"
@@ -282,17 +298,15 @@ const UserTracking = () => {
                 <Tooltip>{s.name}</Tooltip>
               </CircleMarker>
             ))}
+            <FollowBus pos={selected?.location?.lat != null ? [selected.location.lat, selected.location.lng] : null} on={follow} />
             {withLocation.map((b) => (
-              <CircleMarker
+              <BusMarker
                 key={b._id}
-                center={[b.location.lat, b.location.lng]}
-                radius={b._id === selectedId ? 11 : 9}
-                pathOptions={{ color: "#fff", weight: 2, fillColor: "#0ea5e9", fillOpacity: 1 }}
-              >
-                <Popup>
-                  {b.busNumber}: {b.source} → {b.destination}
-                </Popup>
-              </CircleMarker>
+                pos={[b.location.lat, b.location.lng]}
+                line={b._id === selectedId ? routeLine : null}
+                big={b._id === selectedId}
+                label={`${b.busNumber}: ${b.source} → ${b.destination}`}
+              />
             ))}
           </MapContainer>
         </div>
