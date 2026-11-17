@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+/* Show the pointer (hand) cursor on everything that can be clicked */
+button:not(:disabled),
+[role="button"],
+a[href],
+summary,
+select,
+label[for],
+input[type="checkbox"],
+input[type="radio"],
+input[type="submit"],
+input[type="button"],
+[role="switch"]:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
