@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* Normal arrow cursor over plain text (not the text-selection I-beam) */
+body {
+  cursor: default;
+}
+
+/* Typing areas keep the text cursor */
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+textarea,
+[contenteditable="true"] {
+  cursor: text;
+}
+
 /* Show the pointer (hand) cursor on everything that can be clicked */
 button:not(:disabled),
 [role="button"],
